@@ -34,12 +34,16 @@ with col_set:
             risk = get_skin_risk_from_weather(weather, drug)
             st.session_state["weather"] = weather
             st.session_state["risk"] = risk
-    elif "weather" not in st.session_state:
+            st.session_state["weather_loaded"] = True
+
+    # 최초 1회만 자동 로딩 (버튼 클릭 이후에는 session_state 값 유지)
+    if "weather_loaded" not in st.session_state:
         with st.spinner("초기 기상 데이터 로딩..."):
             weather = get_weather(city)
             risk = get_skin_risk_from_weather(weather, drug)
             st.session_state["weather"] = weather
             st.session_state["risk"] = risk
+            st.session_state["weather_loaded"] = True
 
     if "weather" in st.session_state:
         w = st.session_state["weather"]

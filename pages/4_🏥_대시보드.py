@@ -134,8 +134,7 @@ st.subheader("📄 RWE 시판 후 조사 보고서 자동 생성 (데모)")
 
 if st.button("📥 PMS 보고서 초안 생성 (PDF)", type="secondary"):
     with st.spinner("HIRA 데이터 기반 보고서 생성 중..."):
-        import time
-        time.sleep(1.5)
+        pass  # 실제 생성 로직 자리 (time.sleep 제거 — Streamlit UI 블로킹 방지)
     st.success("✅ 보고서 초안 생성 완료!")
     st.markdown(f"""
     **[{target_drug} 시판 후 피부 독성 모니터링 보고서 — 2024 Q1-Q4]**

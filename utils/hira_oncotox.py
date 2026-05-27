@@ -115,21 +115,38 @@ def get_sido_L27() -> pd.DataFrame:
     return df
 
 
+def _latest_value(df: pd.DataFrame, col: str, default: int = 0) -> int:
+    """연도 최신 행의 특정 컬럼 값 안전 추출 (빈 DataFrame 방어)"""
+    if df.empty or col not in df.columns:
+        return default
+    latest = df[df.year == df.year.max()]
+    if latest.empty:
+        return default
+    val = latest[col].values[0]
+    if pd.isna(val):
+        return default
+    return int(val)
+
+
 def get_market_summary() -> dict:
     """대시보드 홈용 핵심 지표 요약"""
-    z51 = get_Z51_trends()
-    l27 = get_L27_trends()
-    t45 = get_T45_trends()
+    try:
+        z51 = get_Z51_trends()
+        l27 = get_L27_trends()
+        t45 = get_T45_trends()
+    except Exception:
+        z51 = l27 = t45 = pd.DataFrame()
 
-    latest_z51 = int(z51[z51.year == z51.year.max()].patients.values[0])
-    latest_l27 = int(l27[l27.year == l27.year.max()].patients.values[0])
-    latest_t45 = int(t45[t45.year == t45.year.max()].patients.values[0])
-    latest_cost = int(t45[t45.year == t45.year.max()].total_cost_mil.values[0])
+    latest_z51 = _latest_value(z51, "patients", 236800)
+    latest_l27 = _latest_value(l27, "patients", 183200)
+    latest_t45 = _latest_value(t45, "patients", 46200)
+    latest_cost = _latest_value(t45, "total_cost_mil", 86400)
+    절감액 = int(latest_t45 * 0.18 * 120 / 10000) if latest_t45 > 0 else 0
 
     return {
         "항암화학요법_환자수": latest_z51,
         "약물유발피부염_환자수": latest_l27,
         "항신생물제_부작용_환자수": latest_t45,
         "부작용_진료비_억원": latest_cost,
-        "응급실_절감_잠재액_억원": int(latest_t45 * 0.18 * 120 / 10000),
+        "응급실_절감_잠재액_억원": 절감액,
     }

@@ -34,7 +34,7 @@ def get_weather(city: str = "서울") -> dict:
                 "temp_c": int(current.get("temp_C", 22)),
                 "humidity": int(current.get("humidity", 55)),
                 "uv_index": int(current.get("uvIndex", 3)),
-                "weather_desc": current.get("weatherDesc", [{}])[0].get("value", "맑음"),
+                "weather_desc": (current.get("weatherDesc") or [{}])[0].get("value", "맑음"),
                 "feels_like_c": int(current.get("FeelsLikeC", 22)),
                 "source": "wttr.in",
             }

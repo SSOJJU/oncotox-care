@@ -10,7 +10,7 @@ from PIL import Image
 import plotly.graph_objects as go
 import datetime
 
-from utils.skin_classifier import analyze_skin_image, get_demo_result
+from utils.skin_classifier import analyze_skin_image, get_demo_result, model_is_ready
 from utils.drug_database import CTCAE_CRITERIA, GENERAL_GUIDELINES, get_drug_list
 
 st.set_page_config(page_title="피부 모니터링 — Onco-Tox Care", page_icon="📸", layout="wide")
@@ -23,6 +23,12 @@ with st.sidebar:
 
 st.title("📸 피부 모니터링")
 st.caption("항암제 복용 중 피부 변화를 AI가 매일 분석합니다.")
+
+# 모델 상태 배너
+if model_is_ready():
+    st.success("🤖 **YOLOv8 AI 모델 준비 완료** — ISIC 2018 dermoscopy 600장 fine-tune (4-class CTCAE Grade 분류)")
+else:
+    st.warning("⏳ **YOLOv8 모델 학습 중** — 완료 전까지 HSV 색상 분석 폴백 모드로 작동합니다.")
 
 # ── 입력 섹션
 col_input, col_result = st.columns([1, 1])
@@ -87,24 +93,43 @@ with col_result:
         </div>
         """, unsafe_allow_html=True)
 
-        # 분석 지표 게이지
-        metrics = [
-            ("홍반 면적 비율", result["erythema_ratio"], 50, "#e07b39"),
-            ("건조/각질 비율", result["dry_ratio"], 60, "#aa8844"),
-            ("수포 면적 비율", result["blister_ratio"], 15, "#cc4444"),
-        ]
-        for label, val, max_val, mcolor in metrics:
-            pct = min(val / max_val, 1.0)
-            st.markdown(f"""
-            <div style="margin-bottom:0.5rem">
-            <div style="display:flex;justify-content:space-between;font-size:0.85rem">
-            <span>{label}</span><span style="color:{mcolor};font-weight:600">{val:.1f}%</span>
-            </div>
-            <div style="background:#eee;border-radius:4px;height:8px">
-            <div style="background:{mcolor};width:{pct*100:.0f}%;height:8px;border-radius:4px"></div>
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
+        # YOLOv8 확률 분포 차트 (모델 결과) 또는 HSV 지표 (폴백)
+        top5 = result.get("top5_probs", {})
+        if top5:
+            grade_order = ["정상", "Grade_1", "Grade_2", "Grade_3"]
+            labels_disp = ["정상", "Grade 1", "Grade 2", "Grade 3"]
+            bar_colors = ["#0088cc", "#88cc00", "#ff6600", "#cc0000"]
+            vals = [top5.get(g, 0) for g in grade_order]
+            fig_bar = go.Figure(go.Bar(
+                x=labels_disp, y=vals,
+                marker_color=bar_colors,
+                text=[f"{v:.1f}%" for v in vals],
+                textposition="outside",
+            ))
+            fig_bar.update_layout(
+                height=200, margin=dict(l=0, r=0, t=10, b=0),
+                yaxis=dict(range=[0, 110], title="확률 (%)"),
+                plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)",
+            )
+            st.plotly_chart(fig_bar, use_container_width=True)
+        else:
+            metrics = [
+                ("홍반 면적 비율", result["erythema_ratio"], 50, "#e07b39"),
+                ("건조/각질 비율", result["dry_ratio"], 60, "#aa8844"),
+                ("수포 면적 비율", result["blister_ratio"], 15, "#cc4444"),
+            ]
+            for label, val, max_val, mcolor in metrics:
+                pct = min(val / max_val, 1.0)
+                st.markdown(f"""
+                <div style="margin-bottom:0.5rem">
+                <div style="display:flex;justify-content:space-between;font-size:0.85rem">
+                <span>{label}</span><span style="color:{mcolor};font-weight:600">{val:.1f}%</span>
+                </div>
+                <div style="background:#eee;border-radius:4px;height:8px">
+                <div style="background:{mcolor};width:{pct*100:.0f}%;height:8px;border-radius:4px"></div>
+                </div>
+                </div>
+                """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
 
