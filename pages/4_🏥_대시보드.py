@@ -63,9 +63,9 @@ with col1:
     grade3 = np.array([0]*20 + [1, 2, 0, 1, 0, 1, 0, 1, 0, 1])
 
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=dates, y=grade1, name="Grade 1", marker_color="#88cc0088"))
-    fig.add_trace(go.Bar(x=dates, y=grade2, name="Grade 2", marker_color="#ff660088"))
-    fig.add_trace(go.Bar(x=dates, y=grade3, name="Grade 3", marker_color="#cc000088"))
+    fig.add_trace(go.Bar(x=dates, y=grade1, name="Grade 1", marker_color="rgba(136,204,0,0.53)"))
+    fig.add_trace(go.Bar(x=dates, y=grade2, name="Grade 2", marker_color="rgba(255,102,0,0.53)"))
+    fig.add_trace(go.Bar(x=dates, y=grade3, name="Grade 3", marker_color="rgba(204,0,0,0.53)"))
     fig.update_layout(
         barmode="stack", height=300,
         margin=dict(l=0, r=0, t=20, b=0),
@@ -164,8 +164,8 @@ cost_without = [int(h * 120) for h in hospitalized]  # 건당 120만원
 cost_with = [int(c * 0.29) for c in cost_without]  # AI 개입 시 71% 절감
 
 fig_cost = go.Figure()
-fig_cost.add_trace(go.Bar(x=years, y=cost_without, name="개입 전 진료비 (백만원)", marker_color="#cc444488"))
-fig_cost.add_trace(go.Bar(x=years, y=cost_with, name="AI 조기개입 후 (백만원)", marker_color="#22994488"))
+fig_cost.add_trace(go.Bar(x=years, y=cost_without, name="개입 전 진료비 (백만원)", marker_color="rgba(204,68,68,0.53)"))
+fig_cost.add_trace(go.Bar(x=years, y=cost_with, name="AI 조기개입 후 (백만원)", marker_color="rgba(34,153,68,0.53)"))
 fig_cost.update_layout(
     barmode="group", height=280,
     margin=dict(l=0, r=0, t=20, b=0),
