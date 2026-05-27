@@ -1,0 +1,17 @@
+venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+data/isic/
+data/yolo_cls/
+data/yolo_runs/skin_grade_cls/args.yaml
+data/yolo_runs/skin_grade_cls/train_batch*.jpg
+data/yolo_runs/skin_grade_cls/val_batch*.jpg
+data/yolo_runs/skin_grade_cls/confusion_matrix*.png
+data/yolo_runs/skin_grade_cls/results.csv
+data/yolo_runs/skin_grade_cls/results.png
+data/yolo_runs/skin_grade_cls/last.pt
+data/yolo_runs/skin_grade_cls/weights/last.pt
+.streamlit/secrets.toml
+*.log
